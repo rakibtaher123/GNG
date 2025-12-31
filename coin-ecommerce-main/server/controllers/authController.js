@@ -32,6 +32,11 @@ exports.registerUser = async (req, res) => {
       name: name.trim(),
       email: normalizedEmail,
       password: password,  // Pass plain password, let model hash it
+      phone: req.body.phone,
+      address: req.body.address,
+      city: req.body.city,
+      postalCode: req.body.postalCode,
+      country: req.body.country || 'Bangladesh',
       role: role === "admin" ? "admin" : "client"
     });
 

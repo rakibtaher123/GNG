@@ -41,8 +41,7 @@ const Header = () => {
 
     // লগআউট হ্যান্ডলার
     const handleLogout = () => {
-        logout();
-        navigate('/');
+        logout(); // AuthContext logout handles both state clearing and redirect to /login
     };
 
     return (

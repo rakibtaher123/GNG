@@ -22,7 +22,8 @@ const LoginPage = () => {
     }
   }, [navigate]);
 
-  const fromState = location.state?.from || '/client';
+  // আগের পেজের লোকেশন খুঁজে বের করা - location.state.from হলো একটা location object
+  const fromPath = location.state?.from?.pathname || '/client';
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -37,9 +38,10 @@ const LoginPage = () => {
 
       if (response.status === 200) {
         const data = response.data;
-        
+
         // ✅ সার্ভার থেকে আসা আসল টোকেন সেভ করা হচ্ছে
         localStorage.setItem("token", data.token);
+        localStorage.setItem("userInfo", JSON.stringify(data.user)); // ✅ Fix: Store full user info
         localStorage.setItem("userRole", data.user.role);
         localStorage.setItem("userEmail", data.user.email);
         localStorage.setItem("userName", data.user.name);
@@ -48,7 +50,7 @@ const LoginPage = () => {
         if (data.user.role === "admin") {
           window.location.href = "/admin";
         } else {
-          window.location.href = fromState;
+          window.location.href = fromPath;
         }
       }
     } catch (err) {

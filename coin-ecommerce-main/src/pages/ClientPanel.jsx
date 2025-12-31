@@ -192,7 +192,7 @@ const ClientPanel = () => {
               title="Live Auctions"
               icon={<Gavel />}
               color="#d32f2f" // Red
-              onClick={() => navigate('/auction/live')}
+              onClick={() => navigate('/client/auction/bidding')}
             />
           </Grid>
 

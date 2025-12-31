@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Container, Grid, Typography, Paper, CircularProgress, Card, CardContent, Button, Alert, Snackbar } from '@mui/material';
-import { ShoppingCart, Inventory, People, AttachMoney, Gavel, Settings, LocalShipping, Visibility } from '@mui/icons-material';
+import { ShoppingCart, Inventory, People, AttachMoney, Gavel, Settings, LocalShipping, Visibility, AssignmentInd } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import io from 'socket.io-client';
 
@@ -136,9 +136,13 @@ const Dashboard = () => {
           </Typography>
         </Box>
         <Button variant="contained" color="error" endIcon={<Visibility />} onClick={() => {
+          // ১. সব localStorage তথ্য মুছে ফেলা
           localStorage.removeItem('userInfo');
           localStorage.removeItem('token');
-          navigate('/login');
+          localStorage.removeItem('userRole');
+          localStorage.removeItem('userEmail');
+          // ২. Hard reload করে login page এ পাঠানো
+          window.location.href = "/login";
         }}>
           LOGOUT
         </Button>
@@ -272,6 +276,18 @@ const Dashboard = () => {
                 />
               </Grid>
 
+            </Grid>
+
+            {/* Row 3: Extra Management */}
+            <Grid container spacing={3} sx={{ mt: 1 }}>
+              <Grid item xs={12} sm={6} md={4}>
+                <ActionButton
+                  title="Bidder Management"
+                  icon={<AssignmentInd />}
+                  color="#5e35b1" // Deep Purple
+                  path="/admin/auctions/bidders"
+                />
+              </Grid>
             </Grid>
           </>
         )}

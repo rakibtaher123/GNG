@@ -21,6 +21,7 @@ export const AuthProvider = ({ children }) => {
         setIsLoggedIn(true);
         try {
           const parsedUser = JSON.parse(storedUserInfo);
+          if (!parsedUser) throw new Error("No user info"); // ✅ Force catch if null
           setUser(parsedUser);
         } catch (e) {
           // Fallback if parsing fails or old data

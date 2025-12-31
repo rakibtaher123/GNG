@@ -147,6 +147,7 @@ const ManageAuctions = () => {
               <TableCell><strong>Product</strong></TableCell>
               <TableCell><strong>Base Price</strong></TableCell>
               <TableCell><strong>Highest Bid</strong></TableCell>
+              <TableCell><strong>Highest Bidder</strong></TableCell> {/* ✅ New Column */}
               <TableCell><strong>Time</strong></TableCell>
               <TableCell><strong>Status</strong></TableCell>
               <TableCell align="center"><strong>Actions</strong></TableCell>
@@ -154,9 +155,9 @@ const ManageAuctions = () => {
           </TableHead>
           <TableBody>
             {loading ? (
-              <TableRow><TableCell colSpan={6} align="center"><CircularProgress /></TableCell></TableRow>
+              <TableRow><TableCell colSpan={7} align="center"><CircularProgress /></TableCell></TableRow>
             ) : auctions.length === 0 ? (
-              <TableRow><TableCell colSpan={6} align="center">No auctions found.</TableCell></TableRow>
+              <TableRow><TableCell colSpan={7} align="center">No auctions found.</TableCell></TableRow>
             ) : (
               auctions.map((row) => (
                 <TableRow key={row._id} hover>
@@ -180,7 +181,22 @@ const ManageAuctions = () => {
                   </TableCell>
                   <TableCell>৳{(row.basePrice || 0).toLocaleString()}</TableCell>
                   <TableCell sx={{ color: 'green', fontWeight: 'bold' }}>
-                    ৳{(row.highestBid || row.basePrice || 0).toLocaleString()}
+                    ৳{(row.currentPrice || row.startingPrice || 0).toLocaleString()}
+                  </TableCell>
+                  {/* ✅ Bidder Info */}
+                  <TableCell>
+                    {row.highestBidder ? (
+                      <Box>
+                        <Typography variant="body2" fontWeight="bold" color="primary">
+                          {row.highestBidder.name}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {row.highestBidder.email}
+                        </Typography>
+                      </Box>
+                    ) : (
+                      <Typography variant="caption" color="text.disabled">No Bids Yet</Typography>
+                    )}
                   </TableCell>
                   <TableCell>
                     <Typography variant="caption" display="block">Start: {row.startTime ? row.startTime.replace('T', ' ') : 'N/A'}</Typography>

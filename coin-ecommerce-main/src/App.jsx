@@ -38,6 +38,9 @@ import ClientSettingsPage from './pages/ClientSettingsPage';
 import ClientAddressPage from './pages/ClientAddressPage';
 import ClientPaymentsPage from './pages/ClientPaymentsPage';
 import ClientAuctionsPage from './pages/ClientAuctionsPage';
+import BidStatusPage from './pages/BidStatusPage';       // নতুন: Bid Status Page
+import AuctionWonPage from './pages/AuctionWonPage';     // নতুন: Auction Won Page
+import AuctionLostPage from './pages/AuctionLostPage';   // নতুন: Auction Lost Page
 
 // ✅ অ্যাডমিন পেজ ইম্পোর্ট (নতুন পেজগুলো যুক্ত করা হয়েছে)
 import AdminDashboard from './Admin/pages/Dashboard';
@@ -45,6 +48,7 @@ import AdminLogin from './Admin/pages/AdminLogin';
 
 // 🔥 MISSING IMPORTS ADDED HERE
 import ManageAuctions from './Admin/pages/ManageAuctions';
+import ManageAuctionsBidder from './Admin/pages/ManageAuctionsBidder'; // ✅ Import
 import LiveBiddingMonitor from './Admin/pages/LiveBiddingMonitor';
 import LiveBiddingSystem from './Admin/pages/LiveBiddingSystem'; // নতুন
 import AuctionHistory from './Admin/pages/AuctionHistory';
@@ -134,6 +138,10 @@ function App() {
                     <Route path="/client/address" element={<ClientAddressPage />} />
                     <Route path="/client/payments" element={<ClientPaymentsPage />} />
                     <Route path="/client/auctions" element={<ClientAuctionsPage />} />
+                    <Route path="/client/auction/bidding" element={<LiveBiddingPage />} /> {/* 🔥 নতুন: ড্যাশবোর্ডের ভেতরে বিডিং পেজ */}
+                    <Route path="/client/auction/bid-status/:auctionId" element={<BidStatusPage />} /> {/* 🆕 Bid Status */}
+                    <Route path="/client/auction/win/:auctionId" element={<AuctionWonPage />} /> {/* 🎉 Auction Won */}
+                    <Route path="/client/auction/lost/:auctionId" element={<AuctionLostPage />} /> {/* 😔 Auction Lost */}
 
                     {/* ✅ অ্যাডমিন প্যানেল রাউটস (Admin Only) */}
 
@@ -150,6 +158,7 @@ function App() {
 
                     {/* ৩. অকশন ম্যানেজমেন্ট রাউটস */}
                     <Route path="/admin/auctions" element={<ManageAuctions />} />
+                    <Route path="/admin/auctions/bidders" element={<ManageAuctionsBidder />} /> {/* ✅ New Route */}
                     <Route path="/admin/auctions/live-system" element={<LiveBiddingSystem />} />
                     <Route path="/admin/auctions/live/:id" element={<LiveBiddingMonitor />} />
                     <Route path="/admin/auctions/history" element={<AuctionHistory />} />

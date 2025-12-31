@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Container, Typography, Box, Paper, Button, Chip, TextField, InputAdornment, Alert } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Countdown from 'react-countdown';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 
 const LiveBiddingPage = () => {
     const navigate = useNavigate();
+    const location = useLocation(); // বর্তমান পেজের লোকেশন ট্র্যাক করার জন্য
     const { user } = useContext(AuthContext);
     const [auctions, setAuctions] = useState([]);
     const [selectedAuction, setSelectedAuction] = useState(null);
@@ -55,11 +56,19 @@ const LiveBiddingPage = () => {
     };
 
     const handlePlaceBid = async () => {
-        if (!user) {
+        // ✅ Check both user context AND localStorage token
+        const token = localStorage.getItem('token');
+
+        if (!user && !token) {
             alert('Please login to bid!');
-            navigate('/login');
+            // লগইনের পর ক্লায়েন্ট ড্যাশবোর্ডের বিডিং পেজে নিয়ে যাবে
+            navigate('/login', { state: { from: { pathname: '/client/auction/bidding' } } });
             return;
         }
+
+        // If user object is not loaded but token exists, just proceed
+        console.log('User:', user);
+        console.log('Token exists:', !!token);
 
         const amount = parseFloat(bidAmount);
 
@@ -77,16 +86,18 @@ const LiveBiddingPage = () => {
         }
 
         try {
-            const token = localStorage.getItem('token');
             await axios.post('http://localhost:5000/api/auctions/bid',
                 { auctionId: selectedAuction._id, bidAmount: amount },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
 
-            setSuccessMsg('✅ Bid Placed Successfully!');
+            setSuccessMsg('✅ Bid Placed Successfully! Redirecting...');
             setBidAmount('');
-            fetchActiveAuctions();
-            setTimeout(() => setSuccessMsg(null), 3000);
+
+            // 🔥 Bid করার পর Bid Status page এ redirect
+            setTimeout(() => {
+                navigate(`/client/auction/bid-status/${selectedAuction._id}`);
+            }, 1500);
         } catch (err) {
             setError(err.response?.data?.error || 'Failed to place bid');
             setTimeout(() => setError(null), 3000);
@@ -94,14 +105,15 @@ const LiveBiddingPage = () => {
     };
 
     const handlePayment = async () => {
-        if (!user) {
+        const token = localStorage.getItem('token');
+
+        if (!user && !token) {
             alert('Please login to proceed with payment!');
-            navigate('/login');
+            navigate('/login', { state: { from: { pathname: '/client/auction/bidding' } } });
             return;
         }
 
         try {
-            const token = localStorage.getItem('token');
             const response = await axios.post(
                 `http://localhost:5000/api/auctions/${selectedAuction._id}/pay`,
                 {},

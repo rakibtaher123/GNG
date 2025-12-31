@@ -12,6 +12,9 @@ const ClientSettingsPage = () => {
         name: '',
         email: '',
         phone: '',
+        address: '',
+        city: '',
+        postalCode: '',
         currentPassword: '',
         newPassword: '',
         confirmPassword: ''
@@ -27,7 +30,11 @@ const ClientSettingsPage = () => {
                 setFormData(prev => ({
                     ...prev,
                     email: payload.email || '',
-                    name: payload.name || ''
+                    name: payload.name || '',
+                    phone: payload.phone || '',
+                    address: payload.address || '',
+                    city: payload.city || '',
+                    postalCode: payload.postalCode || ''
                 }));
             } catch (err) {
                 console.error('Error parsing token:', err);
@@ -85,7 +92,10 @@ const ClientSettingsPage = () => {
                 body: JSON.stringify({
                     id: user._id,
                     name: formData.name,
-                    phone: formData.phone, // Ensure backend schema supports phone if needed, otherwise ignored safe
+                    phone: formData.phone,
+                    address: formData.address,
+                    city: formData.city,
+                    postalCode: formData.postalCode,
                     image: formData.image
                 })
             });
@@ -213,6 +223,35 @@ const ClientSettingsPage = () => {
                                 label="Phone Number"
                                 name="phone"
                                 value={formData.phone}
+                                onChange={handleChange}
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField
+                                fullWidth
+                                label="Full Address"
+                                name="address"
+                                value={formData.address}
+                                onChange={handleChange}
+                                multiline
+                                rows={2}
+                            />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <TextField
+                                fullWidth
+                                label="City"
+                                name="city"
+                                value={formData.city}
+                                onChange={handleChange}
+                            />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <TextField
+                                fullWidth
+                                label="Postal Code"
+                                name="postalCode"
+                                value={formData.postalCode}
                                 onChange={handleChange}
                             />
                         </Grid>

@@ -240,7 +240,9 @@ exports.getAllAuctions = async (req, res) => {
         // Optional: Trigger status check before fetching
         // await exports.checkAuctionStatus(); 
 
-        const auctions = await Auction.find().sort({ createdAt: -1 });
+        const auctions = await Auction.find()
+            .populate('highestBidder', 'name email phone address city') // ✅ Populate extended bidder details
+            .sort({ createdAt: -1 });
         res.status(200).json(auctions);
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -251,7 +253,7 @@ exports.getAllAuctions = async (req, res) => {
 exports.getAuctionById = async (req, res) => {
     try {
         const auction = await Auction.findById(req.params.id)
-            .populate('highestBidder', 'name')
+            .populate('highestBidder', 'name email') // ✅ Populate email too
             .populate('bids.user', 'name'); // Show bidder names
 
         if (!auction) return res.status(404).json({ error: "Auction not found" });
