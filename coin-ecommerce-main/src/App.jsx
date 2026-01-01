@@ -58,6 +58,7 @@ import ManageUsers from './Admin/pages/ManageUsers';       // নতুন
 import SiteSettings from './Admin/pages/SiteSettings';     // নতুন
 import FeedbackPage from './Admin/pages/FeedbackPage';     // নতুন (ফাইলের নাম চেক করে নিও FeedbackPage.jsx নাকি ViewFeedback.jsx)
 import RealizationPage from './pages/RealizationPage';   // Correctly imported here
+import ManageArchives from './pages/ManageArchives';     // 🗂️ Manage Archives
 
 import PrivateRoute from './PrivateRoute';
 
@@ -155,6 +156,7 @@ function App() {
                     <Route path="/admin/users" element={<ManageUsers />} />
                     <Route path="/admin/settings" element={<SiteSettings />} />
                     <Route path="/admin/feedback" element={<FeedbackPage />} />
+                    <Route path="/admin/manage-archives" element={<ManageArchives />} /> {/* 🗂️ Manage Archives */}
 
                     {/* ৩. অকশন ম্যানেজমেন্ট রাউটস */}
                     <Route path="/admin/auctions" element={<ManageAuctions />} />

@@ -1,15 +1,15 @@
 import React from 'react';
 import { Box, Container, Grid, Card, CardMedia, Typography, CircularProgress, CardContent } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { useProducts } from '../context/ProductContext'; 
+import { useProducts } from '../context/ProductContext';
 
-// ✅ নতুন ফাংশন: Image URL ফিক্স (এটি ব্রাউজারকে সম্পূর্ণ URL দেয়)
 const getFullImageUrl = (imagePath) => {
-    // যদি imagePath থাকে এবং এটি 'http' বা 'https' দিয়ে শুরু না হয়
+    // If imagePath exists and doesn't start with http, assume it's a relative path served by our backend
+    // We return it as is, so the Vite proxy (configured for /assets) can handle it
     if (imagePath && !imagePath.startsWith('http')) {
-        return `http://localhost:5000${imagePath}`; // Backend URL যোগ করা হলো
+        return imagePath;
     }
-    return imagePath; // অন্যথায় (যেমন Placeholder বা সম্পূর্ণ URL) সেটি রিটার্ন করবে
+    return imagePath;
 };
 
 
@@ -41,7 +41,7 @@ const AllProductsPage = () => {
                 <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 4, color: '#1b5e20' }}>
                     Complete Coin Collection ({products.length} items)
                 </Typography>
-                
+
                 {products.length === 0 ? (
                     <Box sx={{ textAlign: 'center', mt: 5 }}>
                         <Typography variant="h6" color="text.secondary">No products found.</Typography>
@@ -51,7 +51,7 @@ const AllProductsPage = () => {
                     <Grid container spacing={4}>
                         {products.map((product) => (
                             <Grid item xs={12} sm={6} md={4} lg={3} key={product._id}>
-                                <Card 
+                                <Card
                                     onClick={() => navigate(`/product/${product._id}`)}
                                     sx={{ cursor: 'pointer', height: '100%', display: 'flex', flexDirection: 'column', '&:hover': { boxShadow: 6 } }}
                                 >
@@ -59,7 +59,7 @@ const AllProductsPage = () => {
                                         component="img"
                                         height="160"
                                         // ✅ পরিবর্তন: getFullImageUrl ফাংশনটি এখানে ব্যবহার করা হয়েছে
-                                        image={getFullImageUrl(product.image)} 
+                                        image={getFullImageUrl(product.image)}
                                         alt={product.name}
                                         sx={{ objectFit: 'contain', bgcolor: '#fff', p: 1 }}
                                         // ছবি লোড না হলে Placeholder দেখাবে
@@ -69,7 +69,7 @@ const AllProductsPage = () => {
                                         <Typography variant="subtitle1" noWrap fontWeight="bold">{product.name}</Typography>
                                         <Typography variant="body2" color="text.secondary">{product.category}</Typography>
                                         <Typography variant="h6" color="primary" sx={{ mt: 1 }}>৳{product.price}</Typography>
-                                        
+
                                         <Typography variant="caption" sx={{ color: product.countInStock > 0 ? 'green' : 'red', fontWeight: 'bold' }}>
                                             {product.countInStock > 0 ? 'IN STOCK' : 'OUT OF STOCK'}
                                         </Typography>

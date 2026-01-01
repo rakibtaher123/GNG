@@ -89,7 +89,10 @@ const BidStatusPage = () => {
     }
 
     // 🛑 2. Handle Guest State (Not Logged In)
-    if (!user) {
+    // Check both AuthContext user AND localStorage token (in case context is slow)
+    const token = localStorage.getItem('token');
+
+    if (!user && !token) {
         return (
             <Container maxWidth="sm" sx={{ mt: 8, textAlign: 'center' }}>
                 <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
@@ -101,16 +104,11 @@ const BidStatusPage = () => {
                         Please log in to view your bid status and track auctions.
                     </Typography>
 
-                    {/* Debug Info */}
-                    <Typography variant="caption" color="text.disabled" display="block" sx={{ mb: 2 }}>
-                        Debug: Token in Storage? {localStorage.getItem('token') ? 'YES' : 'NO'}
-                    </Typography>
-
                     <Button
                         variant="contained"
                         color="primary"
                         fullWidth
-                        onClick={() => navigate('/login', { state: { from: { pathname: `/client/auction/bid-status/${auctionId}` } } })}
+                        onClick={() => navigate('/login', { state: { from: `/client/auction/bid-status/${auctionId}` } })}
                         sx={{ py: 1.5, fontWeight: 'bold' }}
                     >
                         Login Now

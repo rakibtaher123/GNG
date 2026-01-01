@@ -1,256 +1,215 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Box, Container, Typography, Button, Paper, Stack, Divider, TextField, InputAdornment, Chip
-} from '@mui/material';
-import { PictureAsPdf, Visibility, List, Search } from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import './ArchiveAuction.css';
+import { FaFilePdf, FaGavel, FaTimes } from 'react-icons/fa';
 
-const ArchivesPage = () => {
-  const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('All');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [archives, setArchives] = useState([]);
+const ArchiveAuction = () => {
+  const [showModal, setShowModal] = useState(false);
+  const [selectedAuctionData, setSelectedAuctionData] = useState(null);
+  const [realAuctions, setRealAuctions] = useState([]);
+  const [demoArchives, setDemoArchives] = useState([]); // Will be fetched from database
   const [loading, setLoading] = useState(true);
 
+  // ২. ডাটাবেস থেকে demo archives এবং real completed auctions fetch করা
   useEffect(() => {
+    const fetchArchives = async () => {
+      try {
+        // Fetch demo archives from database
+        const demoResponse = await fetch('http://localhost:5000/api/demo-archives');
+        const demoData = await demoResponse.json();
+
+        // Format demo archives to match display structure
+        const formattedDemoArchives = demoData.map(archive => ({
+          id: archive._id,
+          title: archive.title,
+          date: archive.date,
+          time: archive.time || '',
+          image: archive.image,
+          headerText: archive.headerText || '',
+          catalogueLink: archive.catalogueLink || '',
+          realization: archive.realization || [],
+          isDemo: true
+        }));
+
+        setDemoArchives(formattedDemoArchives);
+
+        // Fetch real completed auctions
+        const response = await fetch('http://localhost:5000/api/auctions/archives');
+        const data = await response.json();
+
+        // Format the real auctions to match our display structure
+        const formattedAuctions = data.map((auction, index) => ({
+          id: auction._id,
+          title: auction.name || `AUCTION #${formattedDemoArchives.length + index + 1}`,
+          date: auction.displayDate || new Date(auction.dateString).toLocaleDateString(),
+          time: "",
+          image: auction.image || "https://images.unsplash.com/photo-1621416894569-0f39ed31d247?w=400&h=300&fit=crop",
+          headerText: auction.name || "Completed Auction",
+          catalogueLink: auction.pdfLink || "",
+          totalLots: auction.totalLots || 0,
+          isRealAuction: true,
+          archiveId: auction._id // For fetching realization data
+        }));
+
+        setRealAuctions(formattedAuctions);
+      } catch (error) {
+        console.error("Error fetching archives:", error);
+        setRealAuctions([]);
+        setDemoArchives([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchArchives();
   }, []);
 
-  const fetchArchives = async () => {
-    try {
-      const { data } = await axios.get('http://localhost:5000/api/auctions');
+  // ৩. Final List = Demo + Real Auctions
+  const allArchives = [...demoArchives, ...realAuctions];
 
-      // Filter closed and sold auctions for archives
-      const closedAuctions = data.filter(a => a.status === 'closed' || a.status === 'sold');
-
-      setArchives(closedAuctions);
-      setLoading(false);
-    } catch (err) {
-      console.error('Failed to fetch archives:', err);
-      setLoading(false);
+  // --- ফাংশন ১: ক্যাটালগ ওপেন করা ---
+  const handleCatalogue = (link) => {
+    if (link) {
+      window.open(link, '_blank');
+    } else {
+      alert("Catalogue PDF is not available right now.");
     }
   };
 
-  const displayedArchives = archives.filter(item =>
-    searchQuery === '' ||
-    item.productName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.category?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // --- ফাংশন ২: রিয়ালাইজেশন (Realization) ওপেন করা ---
+  const handleRealization = async (auction) => {
+    // If it's a real auction, fetch realization data from backend
+    if (auction.isRealAuction && auction.archiveId) {
+      try {
+        const response = await fetch(`http://localhost:5000/api/auctions/realization/${auction.archiveId}`);
+        const data = await response.json();
 
-  if (loading) {
-    return (
-      <Container maxWidth="lg" sx={{ py: 6, textAlign: 'center' }}>
-        <Typography>Loading Archives...</Typography>
-      </Container>
-    );
-  }
+        // Format realization data
+        const formattedRealization = data.products.map(product => ({
+          lot: product.lotNumber,
+          name: product.name,
+          price: product.isSold ? `৳ ${product.highestBid.toLocaleString()}` : "---",
+          status: product.isSold ? "SOLD" : "UNSOLD"
+        }));
+
+        setSelectedAuctionData({
+          ...auction,
+          realization: formattedRealization
+        });
+      } catch (error) {
+        console.error("Error fetching realization:", error);
+        alert("Failed to load realization data");
+        return;
+      }
+    } else {
+      // Demo auction - use existing data
+      setSelectedAuctionData(auction);
+    }
+
+    setShowModal(true);
+  };
+
+  const closeRealization = () => {
+    setShowModal(false);
+    setSelectedAuctionData(null);
+  };
 
   return (
-    <Container maxWidth="lg" sx={{ py: 6, minHeight: '80vh' }}>
+    <div className="archive-container">
+      <div className="archive-header">
+        <h2>Auction Archives</h2>
+        <p className="subtitle">Past auction results and catalogues</p>
+      </div>
 
-      {/* Header with Tabs */}
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#2c3e50', mb: 3 }}>
-          Auction Archives
-        </Typography>
-
-        {/* Search Bar */}
-        <TextField
-          fullWidth
-          placeholder="Search past auctions (e.g., 'Mughal Bengal')"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Search />
-              </InputAdornment>
-            ),
-          }}
-          sx={{ mt: 2, bgcolor: 'white', borderRadius: 1 }}
-        />
-      </Box>
-
-      {/* Archives Grid */}
-      {displayedArchives.length === 0 ? (
-        <Paper sx={{ p: 8, textAlign: 'center', bgcolor: '#f9f9f9' }}>
-          <Typography variant="h6" color="text.secondary">
-            No archived auctions found
-          </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-            Completed auctions will appear here
-          </Typography>
-        </Paper>
+      {loading ? (
+        <div style={{ textAlign: 'center', padding: '50px', color: '#888' }}>
+          Loading archives...
+        </div>
       ) : (
-        <Stack spacing={4}>
-          {displayedArchives.map((auction) => (
-            <Paper
-              key={auction._id}
-              elevation={2}
-              sx={{
-                display: 'flex',
-                overflow: 'hidden',
-                borderRadius: 2,
-                transition: 'transform 0.2s, box-shadow 0.2s',
-                '&:hover': {
-                  transform: 'translateY(-4px)',
-                  boxShadow: 6
-                }
-              }}
-            >
-              {/* Left: Image */}
-              <Box
-                sx={{
-                  width: 280,
-                  minHeight: 300,
-                  bgcolor: '#8B0000',
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  p: 3
-                }}
-              >
-                <Box
-                  component="img"
-                  src={auction.productImage ? `http://localhost:5000${auction.productImage}` : '/assets/default-coin.jpg'}
-                  alt={auction.productName}
-                  sx={{
-                    maxWidth: '100%',
-                    maxHeight: '250px',
-                    objectFit: 'contain',
-                    filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.3))'
-                  }}
-                />
-              </Box>
+        <div className="archive-grid">
+          {allArchives.map((item) => (
+            <div className="archive-card" key={item.id}>
+              <div className="card-image-box">
+                <div className="image-overlay-text">"{item.headerText}"</div>
+                <img src={item.image} alt={item.title} className="card-img" />
+              </div>
 
-              {/* Center: Details */}
-              <Box sx={{ flex: 1, p: 3, display: 'flex', flexDirection: 'column' }}>
-                <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 1, color: '#2c3e50' }}>
-                  {auction.productName}
-                </Typography>
+              <div className="card-details">
+                <h3 className="auction-title">{item.title}</h3>
+                <p className="auction-date">
+                  {item.date} {item.time && `• ${item.time}`}
+                </p>
+                {item.totalLots > 0 && (
+                  <p className="auction-lots" style={{ fontSize: '0.9rem', color: '#666', marginTop: '5px' }}>
+                    {item.totalLots} Lots
+                  </p>
+                )}
 
-                <Typography variant="body2" sx={{ color: '#666', mb: 2 }}>
-                  Lot #{auction.lotNumber} | {auction.category || 'Numismatics'}
-                </Typography>
-
-                <Divider sx={{ my: 2 }} />
-
-                <Typography variant="caption" sx={{ color: '#777', mb: 1 }}>
-                  Auction Closed: {new Date(auction.soldDate || auction.endTime).toLocaleDateString('en-BD', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                  })}
-                </Typography>
-
-                {/* Estimate and Realized Price */}
-                <Box sx={{ mb: 2, p: 2, bgcolor: '#f9f9f9', borderRadius: 1 }}>
-                  <Typography variant="caption" sx={{ color: '#666', fontWeight: 500 }}>
-                    Estimate: ৳{auction.minEstimate?.toLocaleString()} - ৳{auction.maxEstimate?.toLocaleString()}
-                  </Typography>
-                  <Box sx={{ mt: 1 }}>
-                    <Typography variant="caption" sx={{ color: '#666', mr: 1 }}>
-                      Realized Price:
-                    </Typography>
-                    {auction.finalPrice || auction.currentPrice ? (
-                      <Typography variant="h6" component="span" sx={{ color: '#2e7d32', fontWeight: 'bold' }}>
-                        ৳ {(auction.finalPrice || auction.currentPrice).toLocaleString()}
-                      </Typography>
-                    ) : (
-                      <Typography variant="body2" component="span" sx={{ color: '#999', fontStyle: 'italic' }}>
-                        Unsold
-                      </Typography>
-                    )}
-                  </Box>
-                  {auction.bids && auction.bids.length > 0 && (
-                    <Typography variant="caption" sx={{ color: '#666', display: 'block', mt: 1 }}>
-                      Total Bids: {auction.bids.length}
-                    </Typography>
-                  )}
-                </Box>
-
-                {/* Action Buttons */}
-                <Stack direction="row" spacing={2} sx={{ mt: 'auto' }}>
-                  <Button
-                    variant="outlined"
-                    size="small"
-                    startIcon={<List />}
-                    onClick={() => navigate(`/realization/${auction._id}`)}
-                    sx={{
-                      borderColor: '#d32f2f',
-                      color: '#d32f2f',
-                      '&:hover': { bgcolor: '#d32f2f', color: 'white', borderColor: '#d32f2f' }
-                    }}
+                <div className="card-actions">
+                  {/* Catalogue Button */}
+                  <button
+                    className="action-btn"
+                    onClick={() => handleCatalogue(item.catalogueLink)}
                   >
-                    Realization
-                  </Button>
+                    <FaFilePdf /> Catalogue
+                  </button>
 
-                  <Button
-                    variant="outlined"
-                    size="small"
-                    startIcon={<Visibility />}
-                    onClick={() => navigate(`/auction/live/${auction._id}`)}
-                    sx={{
-                      borderColor: '#d32f2f',
-                      color: '#d32f2f',
-                      '&:hover': { bgcolor: '#d32f2f', color: 'white', borderColor: '#d32f2f' }
-                    }}
+                  {/* Realization Button */}
+                  <button
+                    className="action-btn"
+                    onClick={() => handleRealization(item)}
                   >
-                    View Details
-                  </Button>
-                </Stack>
-              </Box>
-
-              {/* Right: Stats */}
-              <Box
-                sx={{
-                  width: 220,
-                  bgcolor: '#f9f9f9',
-                  p: 3,
-                  borderLeft: '1px solid #e0e0e0'
-                }}
-              >
-                <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 2, color: '#333' }}>
-                  Auction Details
-                </Typography>
-
-                <Stack spacing={1.5} divider={<Divider />}>
-                  <Box>
-                    <Typography variant="caption" sx={{ color: '#666' }}>Status</Typography>
-                    <Chip
-                      label="Closed"
-                      size="small"
-                      sx={{ mt: 0.5, bgcolor: '#9e9e9e', color: 'white', fontWeight: 'bold' }}
-                    />
-                  </Box>
-
-                  {auction.winner && (
-                    <Box>
-                      <Typography variant="caption" sx={{ color: '#666' }}>Winner</Typography>
-                      <Typography variant="body2" sx={{ fontWeight: 'bold', color: '#2e7d32' }}>
-                        Sold
-                      </Typography>
-                    </Box>
-                  )}
-
-                  <Box>
-                    <Typography variant="caption" sx={{ color: '#666' }}>Starting Price</Typography>
-                    <Typography variant="body2">৳{auction.startingPrice?.toLocaleString()}</Typography>
-                  </Box>
-
-                  <Box>
-                    <Typography variant="caption" sx={{ color: '#666' }}>Increment</Typography>
-                    <Typography variant="body2">৳{auction.incrementAmount || 100}</Typography>
-                  </Box>
-                </Stack>
-              </Box>
-            </Paper>
+                    <FaGavel /> Realization
+                  </button>
+                </div>
+              </div>
+            </div>
           ))}
-        </Stack>
+        </div>
       )}
-    </Container>
+
+      {/* --- Realization Modal (Popup) --- */}
+      {showModal && selectedAuctionData && (
+        <div className="modal-overlay" onClick={closeRealization}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Realization: {selectedAuctionData.title}</h3>
+              <button className="close-btn" onClick={closeRealization}><FaTimes /></button>
+            </div>
+
+            <div className="modal-body">
+              {selectedAuctionData.realization && selectedAuctionData.realization.length > 0 ? (
+                <table className="realization-table">
+                  <thead>
+                    <tr>
+                      <th>Lot #</th>
+                      <th>Item Description</th>
+                      <th>Hammer Price</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {selectedAuctionData.realization.map((row, index) => (
+                      <tr key={index}>
+                        <td className="lot-no">{row.lot}</td>
+                        <td>
+                          {row.name}
+                          {row.status === 'UNSOLD' && <span className="badge-unsold">Unsold</span>}
+                        </td>
+                        <td className="price">{row.status === 'SOLD' ? row.price : '-'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <p style={{ textAlign: 'center', padding: '20px', color: '#888' }}>
+                  No realization data available
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 
-export default ArchivesPage;
+export default ArchiveAuction;

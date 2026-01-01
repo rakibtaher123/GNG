@@ -105,7 +105,7 @@ const LiveAuctionPage = () => {
   const placeBid = () => {
     if (!user) {
       alert("Please login to bid!");
-      navigate("/login");
+      navigate("/login", { state: { from: "/client/auction/bidding" } });
       return;
     }
 

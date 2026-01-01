@@ -172,6 +172,7 @@ try {
   app.use("/api/auctions", require("./routes/auctionRoute"));
   app.use("/api/bids", require("./routes/bidRoute"));
   app.use("/api/upload", require("./routes/uploadRoutes")); // ✅ Upload Route
+  app.use("/api/demo-archives", require("./routes/demoArchiveRoutes")); // ✅ Demo Archives Route
 
   const feedbackPath = path.join(__dirname, "./routes/feedbackRoutes.js");
   if (fs.existsSync(feedbackPath)) {

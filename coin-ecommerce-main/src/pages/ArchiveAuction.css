@@ -1,0 +1,229 @@
+/* Archive Page Container */
+.archive-container {
+  padding: 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+  font-family: 'Poppins', sans-serif;
+}
+
+.archive-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.archive-header h2 {
+  font-size: 32px;
+  color: #2c0404;
+  margin-bottom: 10px;
+}
+
+.subtitle {
+  color: #666;
+  font-size: 16px;
+}
+
+/* Grid Layout */
+.archive-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 30px;
+}
+
+/* Card Design */
+.archive-card {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease;
+  border: 1px solid #eee;
+}
+
+.archive-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+}
+
+.card-image-box {
+  position: relative;
+  height: 200px;
+  overflow: hidden;
+  background: #f9f9f9;
+}
+
+.card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.image-overlay-text {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(44, 4, 4, 0.8);
+  color: #fff;
+  padding: 5px 10px;
+  font-size: 12px;
+  border-radius: 4px;
+}
+
+.card-details {
+  padding: 20px;
+  text-align: center;
+}
+
+.auction-title {
+  font-size: 18px;
+  color: #333;
+  margin-bottom: 5px;
+  font-weight: 600;
+}
+
+.auction-date {
+  font-size: 13px;
+  color: #777;
+  margin-bottom: 20px;
+}
+
+/* Buttons */
+.card-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 15px;
+  font-size: 13px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.action-btn:first-child {
+  background: #fff;
+  border: 1px solid #d32f2f;
+  color: #d32f2f;
+}
+
+.action-btn:first-child:hover {
+  background: #fdeaea;
+}
+
+.action-btn:last-child {
+  background: #2c0404;
+  color: white;
+}
+
+.action-btn:last-child:hover {
+  background: #4a0808;
+}
+
+/* Modal Overlay (Background Dim) */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6); /* কালো আবছা ব্যাকগ্রাউন্ড */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(3px); /* পেছনের অংশ একটু ব্লার হবে */
+}
+
+/* Modal Box Design */
+.modal-content {
+  background: white;
+  width: 90%;
+  max-width: 600px;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+  overflow: hidden;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.modal-header {
+  background: #2c0404; /* সেই রয়্যাল মেরুন কালার */
+  color: white;
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+/* Table Design */
+.modal-body {
+  padding: 20px;
+  max-height: 400px;
+  overflow-y: auto; /* স্ক্রল করার জন্য */
+}
+
+.realization-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.realization-table th {
+  text-align: left;
+  background: #f4f4f4;
+  padding: 10px;
+  border-bottom: 2px solid #ddd;
+  color: #555;
+}
+
+.realization-table td {
+  padding: 12px 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.lot-no {
+  font-weight: bold;
+  color: #2c0404;
+}
+
+.price {
+  font-weight: bold;
+  color: #27ae60; /* দামের জন্য সবুজ রঙ */
+}
+
+.badge-unsold {
+  background: #eee;
+  color: #888;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+/* Action Button Icon Spacing */
+.action-btn svg {
+  margin-right: 5px; /* আইকন এবং লেখার মাঝখানে ফাঁক */
+}

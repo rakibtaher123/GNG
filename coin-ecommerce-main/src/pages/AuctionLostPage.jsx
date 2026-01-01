@@ -25,12 +25,26 @@ const AuctionLostPage = () => {
 
     const fetchAuction = async () => {
         try {
+            // First check and update auction statuses
+            await axios.get('http://localhost:5000/api/auctions/utils/check-status');
+
             const { data } = await axios.get(`http://localhost:5000/api/auctions/${auctionId}`);
             setAuction(data);
 
+            // ✅ IMPORTANT: First check if auction is actually ended
+            if (data.status === 'active') {
+                // Auction is still running - redirect to bid status page
+                navigate(`/client/auction/bid-status/${auctionId}`);
+                return;
+            }
+
             // Find user's highest bid
+            const userId = user?.id || user?._id;
             if (user && data.bids) {
-                const myBids = data.bids.filter(bid => bid.user?._id === user.id || bid.user === user.id);
+                const myBids = data.bids.filter(bid => {
+                    const bidUserId = bid.user?._id || bid.user;
+                    return String(bidUserId) === String(userId);
+                });
                 if (myBids.length > 0) {
                     const highest = myBids.reduce((max, bid) => bid.amount > max.amount ? bid : max, myBids[0]);
                     setUserHighestBid(highest);
@@ -38,9 +52,9 @@ const AuctionLostPage = () => {
             }
 
             // Verify user is NOT the winner (redirect if they are)
-            const isWinner = data.winner === user?.id ||
-                data.highestBidder?._id === user?.id ||
-                data.highestBidder === user?.id;
+            const isWinner =
+                String(data.winner) === String(userId) ||
+                String(data.highestBidder?._id || data.highestBidder) === String(userId);
 
             if (isWinner) {
                 navigate(`/client/auction/win/${auctionId}`);

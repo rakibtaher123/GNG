@@ -45,13 +45,24 @@ const AuctionWonPage = () => {
 
     const fetchAuction = async () => {
         try {
+            // First check and update auction statuses
+            await axios.get('http://localhost:5000/api/auctions/utils/check-status');
+
             const { data } = await axios.get(`http://localhost:5000/api/auctions/${auctionId}`);
             setAuction(data);
 
-            // Verify user is the winner
-            const isWinner = data.winner === user?.id ||
-                data.highestBidder?._id === user?.id ||
-                data.highestBidder === user?.id;
+            // ✅ IMPORTANT: First check if auction is actually ended
+            if (data.status === 'active') {
+                // Auction is still running - redirect to bid status page
+                navigate(`/client/auction/bid-status/${auctionId}`);
+                return;
+            }
+
+            // Verify user is the winner (only after auction is closed)
+            const userId = user?.id || user?._id;
+            const isWinner =
+                String(data.winner) === String(userId) ||
+                String(data.highestBidder?._id || data.highestBidder) === String(userId);
 
             if (!isWinner) {
                 navigate(`/client/auction/lost/${auctionId}`);

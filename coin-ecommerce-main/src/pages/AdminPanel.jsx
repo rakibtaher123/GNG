@@ -5,7 +5,7 @@ import {
 } from '@mui/material';
 import {
   Inventory, ShoppingCart, People, AttachMoney,
-  Gavel, Settings, Logout, Feedback, LocalShipping
+  Gavel, Settings, Logout, Feedback, LocalShipping, Archive
 } from '@mui/icons-material';
 import { AuthContext } from '../context/AuthContext';
 
@@ -92,10 +92,16 @@ const AdminPanel = () => {
               {/* 🔥 Manage Auctions Button */}
               <Grid item xs={12} sm={6} md={4}><ActionButton title="Manage Auctions" icon={<Gavel />} color="#d32f2f" path="/admin/auctions" /></Grid>
 
-              <Grid item xs={12} sm={6} md={4}><ActionButton title="View Orders" icon={<LocalShipping />} color="#ed6c02" path="/admin/orders" /></Grid>
+              <Grid item xs={12} sm={6} md={4}><ActionButton title="Live Bidding Control" icon={<Gavel />} color="#f57c00" path="/admin/live-bidding" /></Grid>
               <Grid item xs={12} sm={6} md={4}><ActionButton title="Manage Users" icon={<People />} color="#0288d1" path="/admin/users" /></Grid>
-              <Grid item xs={12} sm={6} md={4}><ActionButton title="Feedbacks" icon={<Feedback />} color="#9c27b0" path="/admin/feedback" /></Grid>
+              <Grid item xs={12} sm={6} md={4}><ActionButton title="View Orders" icon={<LocalShipping />} color="#ed6c02" path="/admin/orders" /></Grid>
               <Grid item xs={12} sm={6} md={4}><ActionButton title="Site Settings" icon={<Settings />} color="#455a64" path="/admin/settings" /></Grid>
+
+              {/* 🗂️ Bidder Management Button */}
+              <Grid item xs={12} sm={6} md={4}><ActionButton title="Bidder Management" icon={<People />} color="#00695c" path="/admin/auctions/bidders" /></Grid>
+
+              {/* 🗂️ Manage Archives Button - Next to Bidder Management */}
+              <Grid item xs={12} sm={6} md={4}><ActionButton title="Manage Archives" icon={<Archive />} color="#5e35b1" path="/admin/manage-archives" /></Grid>
             </Grid>
           </>
         )}

@@ -62,7 +62,7 @@ const LiveBiddingPage = () => {
         if (!user && !token) {
             alert('Please login to bid!');
             // লগইনের পর ক্লায়েন্ট ড্যাশবোর্ডের বিডিং পেজে নিয়ে যাবে
-            navigate('/login', { state: { from: { pathname: '/client/auction/bidding' } } });
+            navigate('/login', { state: { from: '/client/auction/bidding' } });
             return;
         }
 
@@ -109,7 +109,7 @@ const LiveBiddingPage = () => {
 
         if (!user && !token) {
             alert('Please login to proceed with payment!');
-            navigate('/login', { state: { from: { pathname: '/client/auction/bidding' } } });
+            navigate('/login', { state: { from: '/client/auction/bidding' } });
             return;
         }
 
@@ -467,11 +467,13 @@ const styles = {
         left: '20px',
         backgroundColor: '#ff0000',
         color: 'white',
-        padding: '8px 16px',
-        borderRadius: '20px',
+        padding: '10px 20px',
+        borderRadius: '25px',
         fontWeight: 'bold',
-        fontSize: '14px',
-        boxShadow: '0 2px 10px rgba(255,0,0,0.5)',
+        fontSize: '16px',
+        boxShadow: '0 4px 15px rgba(255,0,0,0.6)',
+        zIndex: 10,
+        letterSpacing: '1px',
     },
     currentItemBox: {
         padding: '24px',

@@ -1,6 +1,69 @@
 const express = require("express");
 const router = express.Router();
 const Auction = require("../models/Auction");
+const jwt = require("jsonwebtoken");
+
+// Middleware to verify token
+const verifyToken = (req, res, next) => {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) return res.status(401).json({ error: "Access denied. No token provided." });
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        req.user = decoded;
+        next();
+    } catch (err) {
+        res.status(400).json({ error: "Invalid token" });
+    }
+};
+
+// ⚠️ IMPORTANT: This route MUST come BEFORE /:auctionId 
+// Otherwise, Express will interpret "user" as an auctionId!
+// Get bid history for the authenticated user
+router.get("/user/me", verifyToken, async (req, res) => {
+    try {
+        const userId = req.user.id; // From JWT token
+
+        // Find all auctions where user has placed bids
+        // Query matches 'bids.user' which is ObjectId (how bids are stored)
+        const auctions = await Auction.find({
+            "bids.user": userId
+        }).populate('bids.user', 'name email');
+
+        const userBids = [];
+
+        auctions.forEach(auction => {
+            const bids = auction.bids.filter(bid =>
+                bid.user && bid.user._id && bid.user._id.toString() === userId
+            );
+            bids.forEach(bid => {
+                userBids.push({
+                    auctionId: auction._id,
+                    productName: auction.productName,
+                    productImage: auction.productImage,
+                    category: auction.category,
+                    bidAmount: bid.amount,
+                    timestamp: bid.time || bid.timestamp,
+                    isWinning: auction.highestBidder && auction.highestBidder.toString() === userId,
+                    auctionStatus: auction.status,
+                    auctionEndTime: auction.endTime
+                });
+            });
+        });
+
+        // Sort by timestamp (newest first)
+        userBids.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+        res.json({
+            userId: userId,
+            totalBids: userBids.length,
+            bids: userBids
+        });
+
+    } catch (error) {
+        console.error("❌ Error fetching user bid history:", error);
+        res.status(500).json({ message: error.message });
+    }
+});
 
 // Place a bid on an auction
 router.post("/:auctionId", async (req, res) => {
@@ -100,48 +163,5 @@ router.get("/:auctionId", async (req, res) => {
     }
 });
 
-// Get bid history for a user
-router.get("/user/:userEmail", async (req, res) => {
-    try {
-        const { userEmail } = req.params;
-
-        // Find all auctions where user has placed bids
-        const auctions = await Auction.find({
-            "bids.userEmail": userEmail
-        });
-
-        const userBids = [];
-
-        auctions.forEach(auction => {
-            const bids = auction.bids.filter(bid => bid.userEmail === userEmail);
-            bids.forEach(bid => {
-                userBids.push({
-                    auctionId: auction._id,
-                    productName: auction.productName,
-                    productImage: auction.productImage,
-                    category: auction.category,
-                    bidAmount: bid.amount,
-                    timestamp: bid.timestamp,
-                    isWinning: bid.amount === auction.highestBid,
-                    auctionStatus: auction.status,
-                    auctionEndTime: auction.endTime
-                });
-            });
-        });
-
-        // Sort by timestamp (newest first)
-        userBids.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-
-        res.json({
-            userEmail: userEmail,
-            totalBids: userBids.length,
-            bids: userBids
-        });
-
-    } catch (error) {
-        console.error("❌ Error fetching user bid history:", error);
-        res.status(500).json({ message: error.message });
-    }
-});
-
 module.exports = router;
+

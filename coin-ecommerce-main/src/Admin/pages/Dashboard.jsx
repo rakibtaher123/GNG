@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Container, Grid, Typography, Paper, CircularProgress, Card, CardContent, Button, Alert, Snackbar } from '@mui/material';
-import { ShoppingCart, Inventory, People, AttachMoney, Gavel, Settings, LocalShipping, Visibility, AssignmentInd } from '@mui/icons-material';
+import { ShoppingCart, Inventory, People, AttachMoney, Gavel, Settings, LocalShipping, Visibility, AssignmentInd, Archive } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import io from 'socket.io-client';
 
@@ -286,6 +286,16 @@ const Dashboard = () => {
                   icon={<AssignmentInd />}
                   color="#5e35b1" // Deep Purple
                   path="/admin/auctions/bidders"
+                />
+              </Grid>
+
+              {/* 🗂️ Manage Archives - NEW */}
+              <Grid item xs={12} sm={6} md={4}>
+                <ActionButton
+                  title="Manage Archives"
+                  icon={<Archive />}
+                  color="#00695c" // Teal
+                  path="/admin/manage-archives"
                 />
               </Grid>
             </Grid>

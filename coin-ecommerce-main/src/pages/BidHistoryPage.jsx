@@ -31,20 +31,24 @@ const BidHistoryPage = () => {
 
     const fetchUserBidHistory = async () => {
         try {
-            const userEmail = localStorage.getItem('userEmail');
+            const token = localStorage.getItem('token');
 
-            if (!userEmail) {
+            if (!token) {
                 setError('Please login to view your bid history');
                 setLoading(false);
                 return;
             }
 
-            const { data } = await axios.get(`${API_BASE_URL}/api/bids/user/${userEmail}`);
+            // Use token-based authentication
+            const { data } = await axios.get(`${API_BASE_URL}/api/bids/user/me`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
             setBids(data.bids || []);
             setLoading(false);
         } catch (err) {
             console.error('Error fetching bid history:', err);
-            setError('Failed to load bid history');
+            setError(err.response?.data?.error || err.response?.data?.message || 'Failed to load bid history');
             setLoading(false);
         }
     };

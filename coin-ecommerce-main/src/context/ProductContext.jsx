@@ -9,13 +9,23 @@ export const ProductProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // ✅ চূড়ান্ত ফিক্স: সার্ভারের সাথে মিলিয়ে 'localhost' ব্যবহার করা হলো
-  const API_BASE_URL = "http://localhost:5000";
+  // ✅ Updated to use Vite Proxy
+  const API_BASE_URL = ""; // Empty string allows relative paths like /api/products
 
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${API_BASE_URL}/api/products`);
+      console.log("Fetching products from:", `${API_BASE_URL}/api/products`);
+
+      // Add timeout to prevent infinite loading
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
+      const response = await fetch(`${API_BASE_URL}/api/products`, {
+        signal: controller.signal
+      });
+
+      clearTimeout(timeoutId);
 
       if (!response.ok) {
         throw new Error(`Server responded with status: ${response.status} (${response.statusText || 'Error'})`);
@@ -33,8 +43,12 @@ export const ProductProvider = ({ children }) => {
       }
     } catch (err) {
       console.error("❌ Fetch error:", err.message);
-      setError("Failed to load products. Please ensure the Backend Server is running on port 5000.");
-      setProducts([]); 
+      if (err.name === 'AbortError') {
+        setError("Request timed out. Backend might be slow or unreachable.");
+      } else {
+        setError("Failed to load products. Please ensure the Backend Server is running on port 5000.");
+      }
+      setProducts([]);
     } finally {
       setLoading(false);
     }

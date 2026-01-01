@@ -22,8 +22,8 @@ const LoginPage = () => {
     }
   }, [navigate]);
 
-  // আগের পেজের লোকেশন খুঁজে বের করা - location.state.from হলো একটা location object
-  const fromPath = location.state?.from?.pathname || '/client';
+  // আগের পেজের লোকেশন খুঁজে বের করা
+  const fromPath = location.state?.from?.pathname || location.state?.from || '/client';
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -48,9 +48,11 @@ const LoginPage = () => {
 
         // রোল অনুযায়ী রিডাইরেক্ট
         if (data.user.role === "admin") {
-          window.location.href = "/admin";
+          navigate("/admin", { replace: true });
         } else {
-          window.location.href = fromPath;
+          // Check if 'fromPath' is a string or an object (just in case)
+          const targetPath = typeof fromPath === 'string' ? fromPath : '/client';
+          navigate(targetPath, { replace: true });
         }
       }
     } catch (err) {

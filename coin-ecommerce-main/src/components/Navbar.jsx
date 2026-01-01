@@ -152,7 +152,7 @@ const Navbar = () => {
               {/* User Profile Section */}
               <Box sx={{ display: 'flex', alignItems: 'center', ml: 2, bgcolor: 'rgba(255,255,255,0.1)', px: 2, py: 0.5, borderRadius: 20 }}>
                 <Avatar
-                  src={user?.image ? `http://localhost:5000${user.image}` : null}
+                  src={user?.image ? user.image : null}
                   alt={user?.name || "User"}
                   sx={{ width: 32, height: 32, mr: 1, bgcolor: 'primary.main' }}
                 >
