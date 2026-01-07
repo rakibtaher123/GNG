@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Container, Grid, Card, CardMedia, Typography, Button, TextField, CircularProgress, AppBar, Toolbar, IconButton } from '@mui/material';
+import {
+    Container, Grid, Card, CardMedia, CardContent, Typography, Button,
+    Box, Chip, AppBar, Toolbar, IconButton, CircularProgress
+} from '@mui/material';
 import { useParams, useNavigate } from 'react-router-dom';
+import { ArrowBack, ShoppingCart, LocalOffer, Category, Description } from '@mui/icons-material';
 import { useCart } from '../context/CartProvider';
-import ArrowBack from '@mui/icons-material/ArrowBack';
-
-// API Base URL
-const API_BASE_URL = "http://localhost:5000";
+import { API_BASE_URL } from '../config';
 
 const getFullImageUrl = (imagePath) => {
     if (imagePath && !imagePath.startsWith('http')) {
