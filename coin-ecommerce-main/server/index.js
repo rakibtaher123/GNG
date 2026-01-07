@@ -111,7 +111,7 @@ io.on("connection", (socket) => {
 });
 
 // ✅ 3. Static Assets
-const assetsPath = path.join(__dirname, 'public/assets');
+const assetsPath = path.join(__dirname, '../public/assets');
 if (fs.existsSync(assetsPath)) {
   app.use('/assets', express.static(assetsPath));
 }
