@@ -6,7 +6,7 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 
 // ক্লায়েন্ট পেজ ইম্পোর্ট
-import HomePage from './pages/homepage';
+import Home from './pages/Home';
 import AboutUsPage from './pages/AboutUsPage';
 import ContactUsPage from './pages/ContactUsPage';
 import EshopPage from './pages/EshopPage';
@@ -83,7 +83,7 @@ function App() {
             <div style={{ flex: 1 }}>
                 <Routes>
                     {/* --- সাধারণ ইউজার রাউটস --- */}
-                    <Route path="/" element={<HomePage />} />
+                    <Route path="/" element={<Home />} />
                     <Route path="/about" element={<AboutUsPage />} />
                     <Route path="/contact" element={<ContactUsPage />} />
                     <Route path="/eshop" element={<EshopPage />} />
@@ -172,7 +172,7 @@ function App() {
                     <Route path="/admin/auctions/history" element={<AuctionHistory />} />
 
                     {/* Fallback Route */}
-                    <Route path="*" element={<HomePage />} />
+                    <Route path="*" element={<Home />} />
                 </Routes>
             </div>
 
